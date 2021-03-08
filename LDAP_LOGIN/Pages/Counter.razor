@@ -1,0 +1,37 @@
+﻿@page "/counter"
+@inject LDAP_LOGIN.Data.LoginActiveDirectory logindata
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@if (logindata.loggedIn)
+{
+    <h1>Counter</h1>
+
+    <p>Current count: @currentCount</p>
+
+    <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+}
+else
+{
+    <h1>Counter</h1>
+    <p>Not logged in</p>
+}
+
+
+@code {
+    private int currentCount = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!logindata.loggedIn)
+        {
+            logindata.username = await localStorage.GetItemAsync<string>("username");
+            logindata.password = await localStorage.GetItemAsync<string>("password");
+            logindata.AuthCheck();
+        }
+    }
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+}

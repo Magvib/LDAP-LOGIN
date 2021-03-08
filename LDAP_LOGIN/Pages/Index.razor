@@ -1,0 +1,47 @@
+﻿@page "/"
+@inject LDAP_LOGIN.Data.LoginActiveDirectory logindata
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<h1>Login!</h1>
+
+@if (logindata.loggedIn == false)
+{
+    <p>Status = Not Logged In</p>
+    <input type="text" placeholder="Username" @bind-value="logindata.username" />
+    <br />
+    <input type="password" placeholder="Password" @bind-value="logindata.password" />
+
+    <button @onclick="Login">Login</button>
+}
+else
+{
+    <p>Status = Logged In as <b>[@logindata.role] @logindata.username</b></p>
+    <br />
+    <button @onclick="Logout">Logout</button>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        if(!logindata.loggedIn)
+        {
+            logindata.username = await localStorage.GetItemAsync<string>("username");
+            logindata.password = await localStorage.GetItemAsync<string>("password");
+            logindata.AuthCheck();
+        }
+    }
+
+    public void Login()
+    {
+        localStorage.SetItemAsync("username", logindata.username);
+        localStorage.SetItemAsync("password", logindata.password);
+        logindata.AuthCheck();
+    }
+
+    public void Logout()
+    {
+        logindata.Logout();
+        localStorage.SetItemAsync("username", "");
+        localStorage.SetItemAsync("password", "");
+    }
+}
